@@ -1,4 +1,4 @@
-module clam
+module shellfish
   ! moduleは増やさない．submoduleを導入する．パラメータはnamelistから読み込むのがよいか？
   ! scope for growth や mortality の関数等を開発する．
   ! 関数等は複数用意して，切り替えられるようにする．インターフェースを用意して，引数で切り替え．
@@ -26,22 +26,22 @@ module clam
   real(rp) :: mu0 = 0.0_rp  ! mortality
 
   private
-  public :: clam_main
+  public :: shellfish_main
 
 contains
 
-  subroutine clam_main()
-    ! Temporary main routine for clam calculation.
-    ! In practical application, cal_clam_run() should be called in the time integration loop.
+  subroutine shellfish_main()
+    ! Temporary main routine for shellfish calculation.
+    ! In practical application, cal_shellfish_run() should be called in the time integration loop.
     integer :: timestep
 
     do timestep = 1, timestep_end
-      call cal_clam_run(timestep)
+      call cal_shellfish_run(timestep)
     end do
   
-  end subroutine clam_main
+  end subroutine shellfish_main
 
-  subroutine cal_clam_run(timestep)
+  subroutine cal_shellfish_run(timestep)
     ! main subroutine called in main routine
     integer, intent(in) :: timestep
     real(rp), dimension(imax, jmax, 0:nmax) :: Ns  ! Ns(s, t) or Ns(s, t+dt) : population (m^-2)
@@ -50,11 +50,11 @@ contains
 
     ! Call initial setting only once at the beginning
     if (L_ini) then
-      call clam_ini(Ns)
+      call shellfish_ini(Ns)
       L_ini = .false.
     end if
 
-    call clam_run(Ns)
+    call shellfish_run(Ns)
         
     ! Output results
     if (mod(timestep, output_timestep_interval) == 0) then
@@ -62,23 +62,23 @@ contains
     end if
 
     if (L_out) then
-      call clam_out(Ns, timestep)
+      call shellfish_out(Ns, timestep)
       L_out = .false.
     end if
 
-  end subroutine cal_clam_run
+  end subroutine cal_shellfish_run
 
 
-  subroutine clam_ini(Ns)
+  subroutine shellfish_ini(Ns)
     ! Set initial condition for Ns using private function ini_ns()
     real(rp), intent(out), dimension(imax, jmax, 0:nmax) :: Ns     ! Ns(s, t) : pupulation (m^-2)
 
     Ns = ini_Ns()
 
-  end subroutine clam_ini
+  end subroutine shellfish_ini
 
 
-  subroutine clam_run(Ns)
+  subroutine shellfish_run(Ns)
     real(rp), intent(inout), dimension(imax, jmax, 0:nmax) :: Ns  ! Ns(s, t) or Ns(s, t+dt)
     real(rp), dimension(imax, jmax, 0:nmax) :: eta  ! scope for growth (g/day)
     real(rp), dimension(imax, jmax, nmax) :: mu   ! mortality (1/day)
@@ -100,10 +100,10 @@ contains
 
     call update_Ns(Ns, eta, mu)
 
-  end subroutine clam_run
+  end subroutine shellfish_run
 
 
-  subroutine clam_out(Ns, timestep)
+  subroutine shellfish_out(Ns, timestep)
     ! Output results
     real(rp), intent(in), dimension(imax, jmax, 0:nmax) :: Ns  ! Ns(s, t) or Ns(s, t+dt)
     integer, intent(in) :: timestep
@@ -117,7 +117,7 @@ contains
       end do
     end do
 
-  end subroutine clam_out
+  end subroutine shellfish_out
 
 
   function ini_Ns()
@@ -178,15 +178,15 @@ contains
   end subroutine update_Ns
 
 
-end module clam
+end module shellfish
 
 
-program clam_test
+program shellfish_test
   ! Temporary main program for testing
-  ! cal_clam_run(timestep) should be called in the time integration loop in a practical application.
-  use clam, only : clam_main
+  ! cal_shellfish_run(timestep) should be called in the time integration loop in a practical application.
+  use shellfish, only : shellfish_main
   implicit none
 
-  call clam_main()
+  call shellfish_main()
 
-end program clam_test
+end program shellfish_test
