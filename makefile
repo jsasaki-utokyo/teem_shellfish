@@ -1,5 +1,7 @@
 .SUFFIXES : .o .f90
 FC = ifort
+EXE = shellfish.out
+
 #FFLAGS = -O3 -fpe0 -fp-model precise -xHost
 
 #FFLAGS = -g
@@ -16,16 +18,16 @@ FFLAGS = -check all -traceback -g -fpe0 -ftrapuv
 .f90.o :
 	$(FC) $(FFLAGS) -c $<
 
-OBJS = mod_clam.o
+OBJS = mod_shellfish.o
 
-clam.out : $(OBJS)
+shellfish.out : $(OBJS)
 	$(FC) -o $@ $(OBJS)
 
 run :
-	./clam.out
+	./$(EXE)
 
 gdb :
-	gdb-ia ./clam.out
+	gdb-ia ./$(EXE)
 
 clean :
-	rm -f $(OBJS) clam.out *.mod
+	rm -f $(OBJS) $(EXE) *.mod
