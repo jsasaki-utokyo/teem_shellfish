@@ -1,6 +1,6 @@
 .SUFFIXES : .o .f90
 FC = ifort
-EXE = shellfish.out
+EXE = shellfish.exe
 
 #FFLAGS = -O3 -fpe0 -fp-model precise -xHost
 
@@ -18,9 +18,9 @@ FFLAGS = -check all -traceback -g -fpe0 -ftrapuv
 .f90.o :
 	$(FC) $(FFLAGS) -c $<
 
-OBJS = mod_shellfish.o
+OBJS = datetime_module.o mod_shellfish.o
 
-shellfish.out : $(OBJS)
+shellfish.exe : $(OBJS)
 	$(FC) -o $@ $(OBJS)
 
 run :

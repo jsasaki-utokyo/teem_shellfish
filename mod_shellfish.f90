@@ -9,6 +9,9 @@ module shellfish
   ! CFL=1の条件をできるだけ満たすのがよいか？
   ! test programの有効無効はプリプロセッサで制御する
   !
+  use datetime_module
+  use iso_fortran_env, only: real64
+
   implicit none
   integer, parameter :: rp = selected_real_kind(p=12)  ! 12: double precision, 6: single precision
   ! ファイル読み込みに変更の余地
@@ -17,6 +20,14 @@ module shellfish
   integer, parameter :: nmax = 10
   integer, parameter :: timestep_end = 10
   integer, parameter :: output_timestep_interval = 1
+
+  ! Datetime management
+  type(datetime) :: datetime_ini, datetime_current
+  type(timedelta) :: timedelta_dt
+  ! Spawning period
+  logical :: Lspawning = .FALSE.
+  integer, parameter :: month_spawning_start = 1, day_spawning_start = 3
+  integer, parameter :: month_spawning_end   = 1, day_spawning_end   = 5
 
   ! Definition of parameters
   ! namelist で読み込む形式に将来変更
@@ -38,9 +49,46 @@ contains
     ! Temporary main routine for shellfish calculation.
     ! In practical application, cal_shellfish_run() should be called in the time integration loop.
     integer :: timestep
+    real(rp) :: time  ! time in seconds
+
+!   Set initial datetime(Year, Month, Day, Hour, Minute, Second)
+    datetime_ini = datetime(2018, 1, 1, 0, 0, 0)
+    timedelta_dt = timedelta(milliseconds = NINT(dt * 1000))
+
+    print *, 'iniYear = ', datetime_ini.getYear()
+    print *, 'iniMonth = ', datetime_ini.getMonth()
+    print *, 'iniDay = ', datetime_ini.getDay()
+    print *, 'iniHour= ', datetime_ini.getHour()
+
+    ! Initialize time to be zero (s).
+    time = 0.0_rp
 
     do timestep = 1, timestep_end
+      time = time + dt
+      ! Datetime management
+      datetime_current = datetime_ini + timedelta(seconds = NINT(time*86400))
+      ! Check whether spawning period
+      if (datetime_current.getMonth() >= month_spawning_start .and. &
+          datetime_current.getMonth() <= month_spawning_end .and. &
+          datetime_current.getDay() >= day_spawning_start .and. &
+          datetime_current.getDay() <= day_spawning_end) then
+        Lspawning = .TRUE.
+      else
+        Lspawning = .FALSE.
+      end if
+      
+      print *, 'currentYear = ', datetime_current.getYear()
+      print *, 'currentMonth = ', datetime_current.getMonth()
+      print *, 'currentDay = ', datetime_current.getDay()
+      print *, 'currentHour = ', datetime_current.getHour()
+      if (Lspawning) then
+        print *, 'Spawning period'
+      else
+        print *, 'None spawning period'
+      end if
+
       call cal_shellfish_run(timestep)
+
     end do
   
   end subroutine shellfish_main
